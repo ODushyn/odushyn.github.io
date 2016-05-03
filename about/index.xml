@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Abouts on Some blog</title>
+    <link>http://replace-this-with-your-domain.com/about/</link>
+    <description>Recent content in Abouts on Some blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sat, 20 Jun 2015 14:02:37 +0200</lastBuildDate>
+    <atom:link href="http://replace-this-with-your-domain.com/about/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>About</title>
+      <link>http://replace-this-with-your-domain.com/about/</link>
+      <pubDate>Sat, 20 Jun 2015 14:02:37 +0200</pubDate>
+      
+      <guid>http://replace-this-with-your-domain.com/about/</guid>
+      <description>&lt;p&gt;I&amp;rsquo;m programmer, who likes investigating and creating something interesting and new. I&amp;rsquo;m keen on Web Technologies and like both front and back end development.&lt;/p&gt;
+
+&lt;p&gt;Besides programming, I enjoy playing chess, table tennis, cycling, football and snowboarding.&lt;/p&gt;
+
+&lt;p&gt;Find me on any link at the bottom a page.&lt;/p&gt;
+
+&lt;p&gt;Email me:  &lt;a href=&#34;mailto:wo.dushyn@gmail.com&#34;&gt;wo.dushyn@gmail.com&lt;/a&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>
