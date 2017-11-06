@@ -1,24 +1,29 @@
     <!DOCTYPE html>
-<html lang="en-us">
-	<head>
-		<meta charset="utf-8">
-		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<meta name="author" content="Oleksandr Dushyn">
-		<meta name="description" content="Blogging site">
-		<meta name="generator" content="Hugo 0.15" />
-		<title>HTTP. How to return errors to clients? &middot; Some blog</title>
-		<link rel="shortcut icon" href="http://odushyn.github.io/images/favicon.ico">
-		<link rel="stylesheet" href="http://odushyn.github.io/css/style.css">
-		<link rel="stylesheet" href="http://odushyn.github.io/css/highlight.css">
-		
+<html lang="en-us" >
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+  <meta name="author" content="Oleksandr Dushyn">
+  
+  
+  <meta name="description" content="Blogging site">
+  
+  <meta name="generator" content="Hugo 0.16" />
+  <title>HTTP. How to return errors to clients? &middot; Some blog</title>
+  <link rel="shortcut icon" href="http://odushyn.github.io/images/favicon.ico">
+  <link rel="stylesheet" href="http://odushyn.github.io/css/style.css">
+  <link rel="stylesheet" href="http://odushyn.github.io/css/highlight.css">
+  <link rel="stylesheet" href="http://odushyn.github.io//css/open_sans_font.css">
+  
 
-		
-		<link rel="stylesheet" href="http://odushyn.github.io/css/monosocialiconsfont.css">
-		
+  
+  <link rel="stylesheet" href="http://odushyn.github.io/fontawesome/css/font-awesome.min.css">
+  
 
-		
-	</head>
+  
+</head>
 
     <body>
        <nav class="main-nav">
@@ -58,28 +63,24 @@ Whenever error happens on a server either because of wrong request or server int
 <li>Body containing the error description.</li>
 </ol>
 
-<p>&ndash;</p>
-
-<h4 id="response-code:8b601131e0377d009f81b11f358c85dc">Response code</h4>
+<h3 id="response-code">Response code</h3>
 
 <ol>
-<li><em>helps clients to understand the reason why error happened</em></li>
+<li><p>Helps clients to understand the reason why error happened</p>
+
+<p>Return <em>4xx</em> status code for errors due to client inputs, <em>5xx</em> - for errors due to server implementation.</p></li>
+
+<li><p>Keeps interacting correctly &ldquo;visible&rdquo; for middle-ware software</p>
+
+<p>Common mistake is to return success status code (200 - 206 and 300 - 307) for error describing.</p></li>
 </ol>
 
-<p>Return <em>4xx</em> status code for errors due to client inputs, <em>5xx</em> - for errors due to server implementation.</p>
-
-<ol>
-<li><em>keeps interacting correctly &ldquo;visible&rdquo; for middle-ware software</em></li>
-</ol>
-
-<p>Common mistake is to return success status code (200 - 206 and 300 - 307) for error describing.</p>
-
-<pre><code>HTTP/1.1 200 OK
-Content-Type: application/xml
-
-&lt;error&gt;
-    &lt;message&gt;There are no free seats left&lt;/message&gt;
-&lt;/error&gt;
+<pre><code>    HTTP/1.1 200 OK
+    Content-Type: application/xml
+    
+    &lt;error&gt;
+        &lt;message&gt;There are no free seats left&lt;/message&gt;
+    &lt;/error&gt;
 </code></pre>
 
 <p>Doing this prevents HTTP-aware software from detecting errors.
@@ -97,33 +98,31 @@ For example, a cache will store it as a successful response and serve it to subs
     }
 </code></pre>
 
-<p>Error due to client inputs (the most often used ones):</p>
+<p><strong>Errors due to client inputs (the most often used ones):</strong></p>
 
 <ul>
-<li>400 (Bad Request) - return this error when your server cannot decipher client requests because of syntactical errors.</li>
-<li>401 (Unauthorized) - return this when the client is not authorized to access the resource but may be able to gain access after authentication.</li>
-<li>403 (Forbidden) - use this when your server will not let the client gain access to the resource and
+<li><em>400 (Bad Request)</em> - return this error when your server cannot decipher client requests because of syntactical errors.</li>
+<li><em>401 (Unauthorized)</em> - return this when the client is not authorized to access the resource but may be able to gain access after authentication.</li>
+<li><em>403 (Forbidden)</em> - use this when your server will not let the client gain access to the resource and
 authentication will not help. For instance, you can return this when the user is already authenticated but is not
 allowed to request a resource.</li>
-<li>404 (Not Found) - return this when the resource is not found. If possible, specify a reason in the
+<li><em>404 (Not Found)</em> - return this when the resource is not found. If possible, specify a reason in the
 message body.</li>
-<li>405 (Not Allowed) - return this when an HTTP method is not allowed for this resource.
+<li><em>405 (Not Allowed)</em> - return this when an HTTP method is not allowed for this resource.
 Return an Allow header with methods that are valid for this resource.</li>
-<li>409 (Conflict) - return this when the request conflicts with the current state of the resource. Include
+<li><em>409 (Conflict)</em> - return this when the request conflicts with the current state of the resource. Include
 a body explaining the reason.</li>
-<li>410 (Gone) - return this when the resource used to exist, but it does not anymore (if you don&rsquo;t keep track of deleted files on a server then just return 404).</li>
-<li>413 (Request Entity Too Large) - return this when the body of a POST of PUT request is too large. If possible, specify what is allowed in the body, and provide alternatives.</li>
-<li>415 (Unsupported Media Type) - return this error when a client sends the message body in a format that the server
+<li><em>410 (Gone)</em> - return this when the resource used to exist, but it does not anymore (if you don&rsquo;t keep track of deleted files on a server then just return 404).</li>
+<li><em>413 (Request Entity Too Large)</em> - return this when the body of a POST of PUT request is too large. If possible, specify what is allowed in the body, and provide alternatives.</li>
+<li><em>415 (Unsupported Media Type)</em> - return this error when a client sends the message body in a format that the server
 does not understand.</li>
 </ul>
 
-<p>&ndash;</p>
-
-<p>Error due to server (the most often used ones):</p>
+<p><strong>Error due to server error (the most often used ones):</strong></p>
 
 <ul>
-<li>500 (Internal Server Error) - this is the best code to return when your code on the server side failed due to some  implementation bug.</li>
-<li>503 (Service Unavailable) - return this when the server cannot fulfil the request either for some specific interval
+<li><em>500 (Internal Server Error)</em> - this is the best code to return when your code on the server side failed due to some    implementation bug.</li>
+<li><em>503 (Service Unavailable)</em> - return this when the server cannot fulfil the request either for some specific interval
 or for an undetermined amount of time.
 Two common conditions that prompt this error are failures with back-end servers
 (such as a database connection failure) or when the client exceeded some rate limit
@@ -132,13 +131,11 @@ If possible, include a Retry-After response header with either a date or a numbe
 of seconds as a hint.</li>
 </ul>
 
-<p>&ndash;</p>
+<h3 id="response-body">Response body</h3>
 
-<h4 id="response-body:8b601131e0377d009f81b11f358c85dc">Response body</h4>
+<p><em>Describes the error in a plain text or human readable HTML.</em></p>
 
-<p><em>describes the error in a plain text or human readable HTML</em></p>
-
-<p><strong>The body must contain enough information to understand why the error occurred and how it can be fixed by the client.</strong></p>
+<p>The body must contain enough information to understand why the error occurred and how it can be fixed by the client.</p>
 
 <ul>
 <li>Provide a link to the documentation with error detailed description if the one exist.<br /></li>
@@ -146,8 +143,6 @@ of seconds as a hint.</li>
 <li>Keep the response body descriptive, but exclude details such as stack traces, errors from
 database connection failures, etc.</li>
 </ul>
-
-<p>&ndash;</p>
 
 <p>I prefer using the next template:</p>
 
@@ -161,25 +156,31 @@ database connection failures, etc.</li>
 
 <p><em>code</em> is a identifier for an error message. It makes possible maintaining different translations for each error message on a client side for example.</p>
 
-<h4 id="references:8b601131e0377d009f81b11f358c85dc">References</h4>
+<h4 id="references">References</h4>
 
 <ol>
-<li>MOE (My Own Experience)</li>
-<li>RESTful Web Services Cookbook (O&rsquo;Reilly Media) by Subbu Allamaraju</li>
+<li>RESTful Web Services Cookbook (O&rsquo;Reilly Media) by Subbu Allamaraju
+
+
+
+
+
+
+<br /></li>
 </ol>
 
                 </section>
             </article>
             <footer id="post-meta" class="clearfix">
-                <a href="https://twitter.com/Your%20Twitter%20account">
-                        <img class="avatar" src="http://odushyn.github.io/images/avatar.png">
+                <a href="https://twitter.com/ODushyn">
+                        <img class="avatar" src="http://odushyn.github.io/images/im.png">
                         <div>
                             <span class="dark">Oleksandr Dushyn</span>
                             <span>The one who tries to understand</span>
                         </div>
                     </a>
                 <section id="sharing">
-                    <a class="twitter" href="https://twitter.com/intent/tweet?text=http%3a%2f%2fodushyn.github.io%2fpost%2fhttp-return-errors-to-clients%2f - HTTP.%20How%20to%20return%20errors%20to%20clients%3f by @Your%20Twitter%20account"><span class="icon-twitter"> Tweet</span></a>
+                    <a class="twitter" href="https://twitter.com/intent/tweet?text=http%3a%2f%2fodushyn.github.io%2fpost%2fhttp-return-errors-to-clients%2f - HTTP.%20How%20to%20return%20errors%20to%20clients%3f by @ODushyn"><span class="icon-twitter"> Tweet</span></a>
 
 <a class="facebook" href="#" onclick="
     window.open(
@@ -214,6 +215,13 @@ database connection failures, etc.</li>
     
         
         <li>
+            <a href="http://odushyn.github.io/post/state-pattern-js/">State Pattern. JavaScript implementation.<aside class="dates">Nov 5</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
             <a href="http://odushyn.github.io/post/http-return-errors-to-clients/">HTTP. How to return errors to clients?<aside class="dates">May 18</aside></a>
         </li>
         
@@ -225,17 +233,16 @@ database connection failures, etc.</li>
 
 	
 	
-    
     <a class="symbol" href="https://www.facebook.com/oleks.dushyn">
-        circlefacebook
+        <i class="fa fa-facebook"></i>
     </a>
     
     <a class="symbol" href="https://github.com/ODushyn">
-        circlegithub
+        <i class="fa fa-github"></i>
     </a>
     
     <a class="symbol" href="https://twitter.com/ODushyn">
-        circletwitterbird
+        <i class="fa fa-twitter"></i>
     </a>
     
 
@@ -245,7 +252,7 @@ database connection failures, etc.</li>
     
     <p class="small">
     
-        © Copyright 2016 Oleksandr Dushyn
+        © Copyright 2017 Oleksandr Dushyn
     
     </p>
 </footer>

@@ -6,8 +6,191 @@
     <description>Recent content in Posts on Some blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Wed, 18 May 2016 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sun, 05 Nov 2017 00:00:00 +0000</lastBuildDate>
     <atom:link href="http://odushyn.github.io/post/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>State Pattern. JavaScript implementation.</title>
+      <link>http://odushyn.github.io/post/state-pattern-js/</link>
+      <pubDate>Sun, 05 Nov 2017 00:00:00 +0000</pubDate>
+      
+      <guid>http://odushyn.github.io/post/state-pattern-js/</guid>
+      <description>
+
+&lt;h3 id=&#34;introduction&#34;&gt;Introduction:&lt;/h3&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://en.wikipedia.org/wiki/State_pattern&#34;&gt;According to wikipedia&lt;/a&gt; it is a behavioral software design pattern that
+implements a &lt;em&gt;state machine&lt;/em&gt; in an object-oriented way.&lt;/p&gt;
+
+&lt;p&gt;What&amp;rsquo;s &lt;em&gt;state machine&lt;/em&gt;?
+Finite State Machine(FSM) is some abstract machine that can be in exactly one state at particular moment of time and
+has rules for changing the states(making transition).&lt;/p&gt;
+
+&lt;p&gt;Basically, FSM can be defined by 3 things:&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;list of states&lt;/li&gt;
+&lt;li&gt;rules for chaning the states&lt;/li&gt;
+&lt;li&gt;initial state&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h3 id=&#34;examples&#34;&gt;Examples&lt;/h3&gt;
+
+&lt;p&gt;We interact with state machines every day.&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;traffic lights&lt;/li&gt;
+&lt;li&gt;elevators&lt;/li&gt;
+&lt;li&gt;ticket machines&lt;/li&gt;
+&lt;li&gt;minibanks&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;defining-traffic-light-as-state-machine&#34;&gt;Defining traffic light as state machine&lt;/h3&gt;
+
+&lt;ol&gt;
+&lt;li&gt;List of states: green/yellow/red&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;Rules:&lt;/p&gt;
+
+&lt;p&gt;-if light is green move to yellow condition.&lt;/p&gt;
+
+&lt;p&gt;-if light is yellow move to red condition.&lt;/p&gt;
+
+&lt;p&gt;-if light is red move to green condition&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;Initial state: green.&lt;/p&gt;&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h3 id=&#34;implementation-without-state-pattern&#34;&gt;Implementation without state pattern&lt;/h3&gt;
+
+&lt;p&gt;Before using state pattern itself let&amp;rsquo;s try to implement traffic light logic straightforward. We are going to create
+object &lt;em&gt;State&lt;/em&gt; that will represents traffic lights(green, yellow or red) and use if/else statements to handle lights
+changing.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-js&#34;&gt;function LightMachine(light) {
+  // current state  
+  this.light = light;
+  printInfo(this.light);
+  
+  this.changeLight = function() {
+    // transition rules  
+    if (this.light === &amp;quot;GREEN&amp;quot;) {
+      this.light = &amp;quot;YELLOW&amp;quot;;
+    } else if (this.light === &amp;quot;YELLOW&amp;quot;) {
+      this.light = &amp;quot;RED&amp;quot;;
+    } else if (this.light === &amp;quot;RED&amp;quot;) {
+      this.light = &amp;quot;GREEN&amp;quot;;
+    }
+    printInfo(this.light);
+  };
+  
+  function printInfo(light){
+    console.log(&#39;Current light: &#39; + light);
+  }
+}
+
+// create initial state &#39;GREEN&#39;
+var lightMachine = new LightMachine(&#39;GREEN&#39;);
+lightMachine.changeLight(); // YELLOW
+lightMachine.changeLight(); // RED
+lightMachine.changeLight(); // GREEN
+lightMachine.changeLight(); // YELLOW
+lightMachine.changeLight(); // RED
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Everything looks great except the branched out and coupled code in the rules part. Considering more complex example, you will get
+more different and complicated if/else statements which makes code even less readable and maintainable.&lt;/p&gt;
+
+&lt;h3 id=&#34;implementation-with-state-pattern&#34;&gt;Implementation with state pattern&lt;/h3&gt;
+
+&lt;p&gt;So, let&amp;rsquo;s try to decouple this code.&lt;/p&gt;
+
+&lt;p&gt;The reason of such branching code is that we try to handle all transition logic in one place. Let&amp;rsquo;s make it different way,
+so each state keeping its transition rules logic by itself.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-js&#34;&gt;let Green = function() {
+  this.name = &amp;quot;Green&amp;quot;;
+  this.transition = function(trafficLight) {
+    trafficLight.setLight(new Yellow());
+  }
+};
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;We have created an object that encapsulates(holds) all particular state internal data(i.e. state name)
+and implements common for all states function &lt;em&gt;transition&lt;/em&gt; that contains rules.
+The same should be done for each state. Basically, state object by itself only answers the question:&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;&amp;ldquo;What must be the next state according to the defined rules?&amp;rdquo;&lt;/em&gt;.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-js&#34;&gt;let Yellow = function() {
+  this.name = &amp;quot;Yellow&amp;quot;;
+  this.transition = function(trafficLight) {
+    // according to the rules next state should be Red
+    trafficLight.setLight(new Red());
+  }
+};
+
+let Red = function(trafficLight) {
+  this.name = &amp;quot;Red&amp;quot;;
+  // according to the rules next state should be Green
+  this.transition = function(trafficLight) {
+    trafficLight.setLight(new Green());
+  }
+};
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;We are done with states, but we need to be able to start, stop the system, put system in the specified state,
+keep the particular state, implement any logic between the transitions.
+We also would like to know answers on following questions:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;What is the current state of the system?&lt;/li&gt;
+&lt;li&gt;What are the statistics (how many times states are changed, what state is the most &amp;ldquo;popular&amp;rdquo;, etc)?&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Let&amp;rsquo;s create a function for that exact reason. People usually  call it &lt;em&gt;context&lt;/em&gt; object because it keeps information
+that&amp;rsquo;s common and available for each state.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;let TrafficLight = function(initialState) {
+  this.currentState = initialState;
+  
+  this.setLight = function(newLight) {
+    this.currentState = newLight;
+    console.log(&#39;Current state: &#39; + this.currentState.name);
+  }
+  this.changeLight = function() {
+    this.currentState.transition(this);
+  }
+};
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;As we see it contains two methods. &lt;em&gt;setLight&lt;/em&gt; sets the current traffic light and &lt;em&gt;changeLight&lt;/em&gt; is responsible
+for transition according to the current state&amp;rsquo;s rules. The rules are encapsulated in each state object.
+Therefore, we do not have if/else hell and spaghetti code anymore&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;There is only one interface(TrafficLight) which contains current state and delegates implementation of transitions to state objects.&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;Code looks much more readable and cleaner than in the first approach. This approach is called &amp;ldquo;State pattern&amp;rdquo;.
+We are ready to use our traffic light implemented via &lt;em&gt;State Pattern&lt;/em&gt; now!&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;var stateContext = new TrafficLight(new Green());
+stateContext.changeLight();
+stateContext.changeLight();
+stateContext.changeLight();
+stateContext.changeLight();
+stateContext.changeLight();
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Check out &lt;a href=&#34;http://plnkr.co/edit/iJo6CfGjX0EuiZ9BIj4l&#34;&gt;plunker&lt;/a&gt; to see full version.&lt;/p&gt;
+
+&lt;h3 id=&#34;smart-traffic-light&#34;&gt;Smart traffic light&lt;/h3&gt;
+
+&lt;p&gt;I&amp;rsquo;ve added timing for switching between the lights to make our traffic light more real.
+Check out &lt;a href=&#34;http://plnkr.co/edit/V5bUWp&#34;&gt;this plunk&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Hope you enjoyed reading!&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>HTTP. How to return errors to clients?</title>
@@ -28,28 +211,24 @@ Whenever error happens on a server either because of wrong request or server int
 &lt;li&gt;Body containing the error description.&lt;/li&gt;
 &lt;/ol&gt;
 
-&lt;p&gt;&amp;ndash;&lt;/p&gt;
-
-&lt;h4 id=&#34;response-code:8b601131e0377d009f81b11f358c85dc&#34;&gt;Response code&lt;/h4&gt;
+&lt;h3 id=&#34;response-code&#34;&gt;Response code&lt;/h3&gt;
 
 &lt;ol&gt;
-&lt;li&gt;&lt;em&gt;helps clients to understand the reason why error happened&lt;/em&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;Helps clients to understand the reason why error happened&lt;/p&gt;
+
+&lt;p&gt;Return &lt;em&gt;4xx&lt;/em&gt; status code for errors due to client inputs, &lt;em&gt;5xx&lt;/em&gt; - for errors due to server implementation.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;Keeps interacting correctly &amp;ldquo;visible&amp;rdquo; for middle-ware software&lt;/p&gt;
+
+&lt;p&gt;Common mistake is to return success status code (200 - 206 and 300 - 307) for error describing.&lt;/p&gt;&lt;/li&gt;
 &lt;/ol&gt;
 
-&lt;p&gt;Return &lt;em&gt;4xx&lt;/em&gt; status code for errors due to client inputs, &lt;em&gt;5xx&lt;/em&gt; - for errors due to server implementation.&lt;/p&gt;
-
-&lt;ol&gt;
-&lt;li&gt;&lt;em&gt;keeps interacting correctly &amp;ldquo;visible&amp;rdquo; for middle-ware software&lt;/em&gt;&lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;p&gt;Common mistake is to return success status code (200 - 206 and 300 - 307) for error describing.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;HTTP/1.1 200 OK
-Content-Type: application/xml
-
-&amp;lt;error&amp;gt;
-    &amp;lt;message&amp;gt;There are no free seats left&amp;lt;/message&amp;gt;
-&amp;lt;/error&amp;gt;
+&lt;pre&gt;&lt;code&gt;    HTTP/1.1 200 OK
+    Content-Type: application/xml
+    
+    &amp;lt;error&amp;gt;
+        &amp;lt;message&amp;gt;There are no free seats left&amp;lt;/message&amp;gt;
+    &amp;lt;/error&amp;gt;
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;Doing this prevents HTTP-aware software from detecting errors.
@@ -67,33 +246,31 @@ For example, a cache will store it as a successful response and serve it to subs
     }
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;Error due to client inputs (the most often used ones):&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Errors due to client inputs (the most often used ones):&lt;/strong&gt;&lt;/p&gt;
 
 &lt;ul&gt;
-&lt;li&gt;400 (Bad Request) - return this error when your server cannot decipher client requests because of syntactical errors.&lt;/li&gt;
-&lt;li&gt;401 (Unauthorized) - return this when the client is not authorized to access the resource but may be able to gain access after authentication.&lt;/li&gt;
-&lt;li&gt;403 (Forbidden) - use this when your server will not let the client gain access to the resource and
+&lt;li&gt;&lt;em&gt;400 (Bad Request)&lt;/em&gt; - return this error when your server cannot decipher client requests because of syntactical errors.&lt;/li&gt;
+&lt;li&gt;&lt;em&gt;401 (Unauthorized)&lt;/em&gt; - return this when the client is not authorized to access the resource but may be able to gain access after authentication.&lt;/li&gt;
+&lt;li&gt;&lt;em&gt;403 (Forbidden)&lt;/em&gt; - use this when your server will not let the client gain access to the resource and
 authentication will not help. For instance, you can return this when the user is already authenticated but is not
 allowed to request a resource.&lt;/li&gt;
-&lt;li&gt;404 (Not Found) - return this when the resource is not found. If possible, specify a reason in the
+&lt;li&gt;&lt;em&gt;404 (Not Found)&lt;/em&gt; - return this when the resource is not found. If possible, specify a reason in the
 message body.&lt;/li&gt;
-&lt;li&gt;405 (Not Allowed) - return this when an HTTP method is not allowed for this resource.
+&lt;li&gt;&lt;em&gt;405 (Not Allowed)&lt;/em&gt; - return this when an HTTP method is not allowed for this resource.
 Return an Allow header with methods that are valid for this resource.&lt;/li&gt;
-&lt;li&gt;409 (Conflict) - return this when the request conflicts with the current state of the resource. Include
+&lt;li&gt;&lt;em&gt;409 (Conflict)&lt;/em&gt; - return this when the request conflicts with the current state of the resource. Include
 a body explaining the reason.&lt;/li&gt;
-&lt;li&gt;410 (Gone) - return this when the resource used to exist, but it does not anymore (if you don&amp;rsquo;t keep track of deleted files on a server then just return 404).&lt;/li&gt;
-&lt;li&gt;413 (Request Entity Too Large) - return this when the body of a POST of PUT request is too large. If possible, specify what is allowed in the body, and provide alternatives.&lt;/li&gt;
-&lt;li&gt;415 (Unsupported Media Type) - return this error when a client sends the message body in a format that the server
+&lt;li&gt;&lt;em&gt;410 (Gone)&lt;/em&gt; - return this when the resource used to exist, but it does not anymore (if you don&amp;rsquo;t keep track of deleted files on a server then just return 404).&lt;/li&gt;
+&lt;li&gt;&lt;em&gt;413 (Request Entity Too Large)&lt;/em&gt; - return this when the body of a POST of PUT request is too large. If possible, specify what is allowed in the body, and provide alternatives.&lt;/li&gt;
+&lt;li&gt;&lt;em&gt;415 (Unsupported Media Type)&lt;/em&gt; - return this error when a client sends the message body in a format that the server
 does not understand.&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;p&gt;&amp;ndash;&lt;/p&gt;
-
-&lt;p&gt;Error due to server (the most often used ones):&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Error due to server error (the most often used ones):&lt;/strong&gt;&lt;/p&gt;
 
 &lt;ul&gt;
-&lt;li&gt;500 (Internal Server Error) - this is the best code to return when your code on the server side failed due to some  implementation bug.&lt;/li&gt;
-&lt;li&gt;503 (Service Unavailable) - return this when the server cannot fulfil the request either for some specific interval
+&lt;li&gt;&lt;em&gt;500 (Internal Server Error)&lt;/em&gt; - this is the best code to return when your code on the server side failed due to some    implementation bug.&lt;/li&gt;
+&lt;li&gt;&lt;em&gt;503 (Service Unavailable)&lt;/em&gt; - return this when the server cannot fulfil the request either for some specific interval
 or for an undetermined amount of time.
 Two common conditions that prompt this error are failures with back-end servers
 (such as a database connection failure) or when the client exceeded some rate limit
@@ -102,13 +279,11 @@ If possible, include a Retry-After response header with either a date or a numbe
 of seconds as a hint.&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;p&gt;&amp;ndash;&lt;/p&gt;
+&lt;h3 id=&#34;response-body&#34;&gt;Response body&lt;/h3&gt;
 
-&lt;h4 id=&#34;response-body:8b601131e0377d009f81b11f358c85dc&#34;&gt;Response body&lt;/h4&gt;
+&lt;p&gt;&lt;em&gt;Describes the error in a plain text or human readable HTML.&lt;/em&gt;&lt;/p&gt;
 
-&lt;p&gt;&lt;em&gt;describes the error in a plain text or human readable HTML&lt;/em&gt;&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;The body must contain enough information to understand why the error occurred and how it can be fixed by the client.&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;The body must contain enough information to understand why the error occurred and how it can be fixed by the client.&lt;/p&gt;
 
 &lt;ul&gt;
 &lt;li&gt;Provide a link to the documentation with error detailed description if the one exist.&lt;br /&gt;&lt;/li&gt;
@@ -116,8 +291,6 @@ of seconds as a hint.&lt;/li&gt;
 &lt;li&gt;Keep the response body descriptive, but exclude details such as stack traces, errors from
 database connection failures, etc.&lt;/li&gt;
 &lt;/ul&gt;
-
-&lt;p&gt;&amp;ndash;&lt;/p&gt;
 
 &lt;p&gt;I prefer using the next template:&lt;/p&gt;
 
@@ -131,11 +304,17 @@ database connection failures, etc.&lt;/li&gt;
 
 &lt;p&gt;&lt;em&gt;code&lt;/em&gt; is a identifier for an error message. It makes possible maintaining different translations for each error message on a client side for example.&lt;/p&gt;
 
-&lt;h4 id=&#34;references:8b601131e0377d009f81b11f358c85dc&#34;&gt;References&lt;/h4&gt;
+&lt;h4 id=&#34;references&#34;&gt;References&lt;/h4&gt;
 
 &lt;ol&gt;
-&lt;li&gt;MOE (My Own Experience)&lt;/li&gt;
-&lt;li&gt;RESTful Web Services Cookbook (O&amp;rsquo;Reilly Media) by Subbu Allamaraju&lt;/li&gt;
+&lt;li&gt;RESTful Web Services Cookbook (O&amp;rsquo;Reilly Media) by Subbu Allamaraju
+
+
+
+
+
+
+&lt;br /&gt;&lt;/li&gt;
 &lt;/ol&gt;
 </description>
     </item>
