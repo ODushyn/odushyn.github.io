@@ -6,8 +6,191 @@
     <description>Recent content in Posts on Some blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sun, 05 Nov 2017 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Tue, 10 Jul 2018 23:31:01 +0200</lastBuildDate>
     <atom:link href="http://odushyn.github.io/post/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>The main idea behind rxjs</title>
+      <link>http://odushyn.github.io/post/rxjs-main-concept/</link>
+      <pubDate>Tue, 10 Jul 2018 23:31:01 +0200</pubDate>
+      
+      <guid>http://odushyn.github.io/post/rxjs-main-concept/</guid>
+      <description>
+
+&lt;h3 id=&#34;what-is-rxjs&#34;&gt;What is rxjs?&lt;/h3&gt;
+
+&lt;p&gt;ReactiveX is a library for composing asynchronous and event-based programs by using observable sequences.
+rxjs is implimentation  Observer pattern in javascript programming language (&lt;a href=&#34;http://reactivex.io/intro.html&#34;&gt;source&lt;/a&gt;).&lt;/p&gt;
+
+&lt;p&gt;Not clear yet&amp;hellip;&lt;/p&gt;
+
+&lt;p&gt;All my following examples are taken from &lt;a href=&#34;https://rxjs-dev.firebaseapp.com/guide/overview&#34;&gt;official guide&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h4 id=&#34;first-example&#34;&gt;First example&lt;/h4&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Count how many times the button was clicked.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Straightforward solution via using event listener and implementing callback function.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;	var count = 0;
+	var button = document.querySelector(&#39;button&#39;);
+	button.addEventListener(&#39;click&#39;, () =&amp;gt; console.log(`Clicked ${++count} times`));
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;There is big disadvantage: callback function modifies external state - &lt;code&gt;count&lt;/code&gt; variable.
+In big projects such behaviour may lead to unexpected errors.&lt;/p&gt;
+
+&lt;p&gt;In example above we handle each event separately. However, what if we could handle the flow of these events?
+This idea is implemented inside Observable object. Observable object emits events and gives possibility to
+manipulate them in sequential way.&lt;/p&gt;
+
+&lt;p&gt;There are many ways to create an Observable out of html events flow. Let&amp;rsquo;s use &lt;code&gt;fromEvent&lt;/code&gt; function.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;let observable = fromEvent(button1, &#39;click&#39;);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Once we have an Observable that emit events we also need the way to consume those events.
+Here is where Observer comes to play. We observe emitted values using &lt;code&gt;subscribe&lt;/code&gt; method.
+Subscribe method consumes 3 callbacks: for success consumes event, error consumes error
+and onComplete callback consumes nothing.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;let observable = fromEvent(button1, &#39;click&#39;);
+let subscription = observable.subscribe((event) =&amp;gt; {}, (error) =&amp;gt; {}, () =&amp;gt; {})
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Method subscribe returns &lt;code&gt;Subscription&lt;/code&gt; object the mainly used for canceling subscription
+by calling &lt;code&gt;subscription.unsubscribe()&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;Based &lt;em&gt;ONLY&lt;/em&gt; on this knowledge we may implement next solution(&lt;em&gt;ugly, DO NOT repeat this&lt;/em&gt;)&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;let count = 0;
+const button1 = document.querySelector(&#39;button&#39;);
+fromEvent(button1, &#39;click&#39;).subscribe(count =&amp;gt; {
+    console.log(`RXJS: Clicked ${count++} times`)
+});
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Where the benefit of using Observable you may ask? After all, we still have global count variable.&lt;/p&gt;
+
+&lt;p&gt;What if we could manipulate the flow itself and change each events or values emitted by Observable before getting it
+into subscribe function as parameter?
+There is where a very power concept of Operators comes to play at this exact moment.
+To solve our problem we may use &lt;code&gt;scan&lt;/code&gt; operator.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;const button1 = document.querySelector(&#39;button&#39;);
+fromEvent(button1, &#39;click&#39;).pipe(
+  scan(count =&amp;gt; count + 1, 0)
+)
+.subscribe(count =&amp;gt; console.log(`RXJS: Clicked ${count} times`));
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;code&gt;scan&lt;/code&gt; operator implements callback function and aggregates the result into count variable.&lt;/p&gt;
+
+&lt;p&gt;Since rxjs-v6 it&amp;rsquo;s mandatory to use &lt;code&gt;pipe&lt;/code&gt; method and pass operators inside it as its parameters.
+Thus, before you get emitted event inside &lt;code&gt;subscribe&lt;/code&gt; function all events go through the &lt;code&gt;pipe&lt;/code&gt; and
+gets modified by the specified operators.&lt;/p&gt;
+
+&lt;p&gt;Last solution by using &lt;code&gt;observable&lt;/code&gt; and &lt;code&gt;scan&lt;/code&gt; operators provides clean solution without using global variables
+and you can easily scale it.&lt;/p&gt;
+
+&lt;h4 id=&#34;second-example&#34;&gt;Second example&lt;/h4&gt;
+
+&lt;ul&gt;
+&lt;li&gt;The task is to allow and handle at most one click per second.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Straightforward solution:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;var count = 0;
+var rate = 1000;
+var lastClick = Date.now() - rate;
+var button = document.querySelector(&#39;button&#39;);
+button.addEventListener(&#39;click&#39;, () =&amp;gt; {
+  if (Date.now() - lastClick &amp;gt;= rate) {
+    console.log(`Clicked ${++count} times`);
+    lastClick = Date.now();
+  }
+});
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Using observables:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;const { fromEvent } = rxjs;
+const { throttleTime, scan } = rxjs.operators;
+const button = document.querySelector(&#39;button&#39;);
+fromEvent(button, &#39;click&#39;).pipe(
+  throttleTime(1000),
+  scan(count =&amp;gt; count + 1, 0)
+)
+.subscribe(count =&amp;gt; console.log(`Clicked ${count} times`));
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Just look at how is readable the solution that uses observables. That is because it allows to control the flow.
+&lt;code&gt;throttleTime&lt;/code&gt; operator emits latest value when specified duration has passed and &lt;code&gt;scan&lt;/code&gt; operator counts the
+total number of events.
+Operators are executed in the order they specified inside pipe function. Scan operator is not executed until
+&lt;code&gt;throttleTime&lt;/code&gt; emits the value. &lt;code&gt;subscribe&lt;/code&gt; function is not executed until all operators are passed.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://image.slidesharecdn.com/fpjsluisatenciobocajs-160504163409/95/luis-atencio-on-rxjs-22-638.jpg?cb=1462379809&#34;&gt;
+ &lt;img src=&#34;images/post/rxjs-main-concept/stream.jpg&#34;&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Lets make task more complicated and count the sum of current mouse x positions.
+Event listener:
+&lt;code&gt;
+let count = 0;
+const rate = 1000;
+let lastClick = Date.now() - rate;
+const button = document.querySelector(&#39;button&#39;);
+button.addEventListener(&#39;click&#39;, (event) =&amp;gt; {
+if (Date.now() - lastClick &amp;gt;= rate) {
+count += event.clientX;
+console.log(count)
+lastClick = Date.now();
+}
+});
+&lt;/code&gt;
+Observable:
+```
+const { fromEvent } = rxjs;
+const { throttleTime, map, scan } = rxjs.operators;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;const button = document.querySelector(&amp;lsquo;button&amp;rsquo;);
+fromEvent(button, &amp;lsquo;click&amp;rsquo;).pipe(
+  throttleTime(1000),
+  map(event =&amp;gt; event.clientX),
+  scan((count, clientX) =&amp;gt; count + clientX, 0)
+)
+.subscribe(count =&amp;gt; console.log(count));
+```&lt;/p&gt;
+
+&lt;p&gt;Event listener solution required refactoring of the algorythm
+but Observable approach adding of one more operator - &lt;code&gt;map&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;map&lt;/code&gt; transform the items emitted by an Observable by applying a function to each item.&lt;/p&gt;
+
+&lt;p&gt;Firstly, click happened and click event was emitted by browser. The flow of click events is handled
+by our Observable. Observable emits same event further.
+Then this event is processed via the pipe. &lt;code&gt;throttleTime&lt;/code&gt; checks whether one seconed passed and if
+so emits click event futher to &lt;code&gt;map&lt;/code&gt; operator. &lt;code&gt;map&lt;/code&gt; is transform operator and in our case it trasnforms
+click event to number(coordinate). Thefore, scan get not click event as input but number.&lt;/p&gt;
+
+&lt;p&gt;Browser click(emits Event() object) -&amp;gt; Observable(Event()) -&amp;gt;
+-&amp;gt; Pipe[throttleTime(Event()) -&amp;gt; map(number) -&amp;gt; scan(number)] -&amp;gt; subscribe(number).&lt;/p&gt;
+
+&lt;p&gt;Note: &lt;code&gt;scan&lt;/code&gt; first parameter is always aggregated value and the second one is emitted value.&lt;/p&gt;
+
+&lt;p&gt;Conclusion: rxjs is (almost as any other library) just helps to solve same problems in different way.
+It introduces an abstraction for managing flows of events(first example) and the concept of Observable,
+Observer, Subscription operators and creates . It helps to solve event based tasks rather in a declarative
+than imperative way.
+Code becomes more redable and programmer mainly thinks about what operators to apply instead of implementing
+algorythms(2nd and 3rd examples).&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>State Pattern. JavaScript implementation.</title>
