@@ -65,7 +65,7 @@ rxjs is implimentation  Observer pattern in javascript programming language (<a 
 
 <p>All my following examples are taken from <a href="https://rxjs-dev.firebaseapp.com/guide/overview">official guide</a>.</p>
 
-<h4 id="first-example">First example</h4>
+<h4 id="first-example-create-observable">First example: create observable</h4>
 
 <ul>
 <li>Count how many times the button was clicked.</li>
@@ -73,9 +73,9 @@ rxjs is implimentation  Observer pattern in javascript programming language (<a 
 
 <p>Straightforward solution via using event listener and implementing callback function.</p>
 
-<pre><code>	var count = 0;
-	var button = document.querySelector('button');
-	button.addEventListener('click', () =&gt; console.log(`Clicked ${++count} times`));
+<pre><code>var count = 0;
+var button = document.querySelector('button');
+button.addEventListener('click', () =&gt; console.log(`Clicked ${++count} times`));
 </code></pre>
 
 <p>There is big disadvantage: callback function modifies external state - <code>count</code> variable.
@@ -87,7 +87,7 @@ manipulate them in sequential way.</p>
 
 <p>There are many ways to create an Observable out of html events flow. Let&rsquo;s use <code>fromEvent</code> function.</p>
 
-<pre><code>let observable = fromEvent(button1, 'click');
+<pre><code>let observable = fromEvent(button, 'click');
 </code></pre>
 
 <p>Once we have an Observable that emit events we also need the way to consume those events.
@@ -95,7 +95,7 @@ Here is where Observer comes to play. We observe emitted values using <code>subs
 Subscribe method consumes 3 callbacks: for success consumes event, error consumes error
 and onComplete callback consumes nothing.</p>
 
-<pre><code>let observable = fromEvent(button1, 'click');
+<pre><code>let observable = fromEvent(button, 'click');
 let subscription = observable.subscribe((event) =&gt; {}, (error) =&gt; {}, () =&gt; {})
 </code></pre>
 
@@ -105,8 +105,8 @@ by calling <code>subscription.unsubscribe()</code></p>
 <p>Based <em>ONLY</em> on this knowledge we may implement next solution(<em>ugly, DO NOT repeat this</em>)</p>
 
 <pre><code>let count = 0;
-const button1 = document.querySelector('button');
-fromEvent(button1, 'click').subscribe(count =&gt; {
+const button = document.querySelector('button');
+fromEvent(button, 'click').subscribe(count =&gt; {
     console.log(`RXJS: Clicked ${count++} times`)
 });
 </code></pre>
@@ -118,8 +118,8 @@ into subscribe function as parameter?
 There is where a very power concept of Operators comes to play at this exact moment.
 To solve our problem we may use <code>scan</code> operator.</p>
 
-<pre><code>const button1 = document.querySelector('button');
-fromEvent(button1, 'click').pipe(
+<pre><code>const button = document.querySelector('button');
+fromEvent(button, 'click').pipe(
   scan(count =&gt; count + 1, 0)
 )
 .subscribe(count =&gt; console.log(`RXJS: Clicked ${count} times`));
@@ -134,7 +134,7 @@ gets modified by the specified operators.</p>
 <p>Last solution by using <code>observable</code> and <code>scan</code> operators provides clean solution without using global variables
 and you can easily scale it.</p>
 
-<h4 id="second-example">Second example</h4>
+<h4 id="second-example-apply-operator">Second example: apply operator</h4>
 
 <ul>
 <li>The task is to allow and handle at most one click per second.</li>
@@ -172,62 +172,69 @@ total number of events.
 Operators are executed in the order they specified inside pipe function. Scan operator is not executed until
 <code>throttleTime</code> emits the value. <code>subscribe</code> function is not executed until all operators are passed.</p>
 
-<p><img src="https://image.slidesharecdn.com/fpjsluisatenciobocajs-160504163409/95/luis-atencio-on-rxjs-22-638.jpg?cb=1462379809">
- <img src="images/post/rxjs-main-concept/stream.jpg"></p>
+<p><img src="https://image.slidesharecdn.com/fpjsluisatenciobocajs-160504163409/95/luis-atencio-on-rxjs-22-638.jpg?cb=1462379809"></p>
 
-<ul>
-<li>Lets make task more complicated and count the sum of current mouse x positions.
-Event listener:
-<code>
-let count = 0;
+<h4 id="third-example-scale-existing-solution">Third example: scale existing solution</h4>
+
+<p>Lets make task more complicated and count the sum of current mouse x positions.
+Event listener:</p>
+
+<pre><code>let count = 0;
 const rate = 1000;
 let lastClick = Date.now() - rate;
 const button = document.querySelector('button');
 button.addEventListener('click', (event) =&gt; {
-if (Date.now() - lastClick &gt;= rate) {
-count += event.clientX;
-console.log(count)
-lastClick = Date.now();
-}
+  if (Date.now() - lastClick &gt;= rate) {
+    count += event.clientX;
+    console.log(count)
+    lastClick = Date.now();
+  }
 });
-</code>
-Observable:
-```
-const { fromEvent } = rxjs;
-const { throttleTime, map, scan } = rxjs.operators;</li>
-</ul>
+</code></pre>
 
-<p>const button = document.querySelector(&lsquo;button&rsquo;);
-fromEvent(button, &lsquo;click&rsquo;).pipe(
+<p>Observable:</p>
+
+<pre><code>const { fromEvent } = rxjs;
+const { throttleTime, map, scan } = rxjs.operators;
+
+const button = document.querySelector('button');
+fromEvent(button, 'click').pipe(
   throttleTime(1000),
   map(event =&gt; event.clientX),
   scan((count, clientX) =&gt; count + clientX, 0)
 )
 .subscribe(count =&gt; console.log(count));
-```</p>
+</code></pre>
 
-<p>Event listener solution required refactoring of the algorythm
-but Observable approach adding of one more operator - <code>map</code>.</p>
+<p>Event listener solution required refactoring of the algorithm but Observable approach
+adding of one more operator - <code>map</code>.</p>
 
-<p><code>map</code> transform the items emitted by an Observable by applying a function to each item.</p>
+<p><code>map</code> transforms the items emitted by an Observable by applying a function to each item.</p>
 
-<p>Firstly, click happened and click event was emitted by browser. The flow of click events is handled
-by our Observable. Observable emits same event further.
-Then this event is processed via the pipe. <code>throttleTime</code> checks whether one seconed passed and if
-so emits click event futher to <code>map</code> operator. <code>map</code> is transform operator and in our case it trasnforms
-click event to number(coordinate). Thefore, scan get not click event as input but number.</p>
+<ul>
+<li>Firstly, click happened by user and click event was emitted by browser.</li>
+<li>The flow of click events is handled by our Observable. Observable emits same event further.</li>
+<li>Then this event is processed via the pipe. <code>throttleTime</code> checks whether one second passed and if
+so emits click event further to <code>map</code> operator.</li>
+<li><code>map</code> is transform operator and in our case it transforms click event(object) to coordinate(number).
+Therefore, scan get number as input instead of event object.</li>
+</ul>
 
 <p>Browser click(emits Event() object) -&gt; Observable(Event()) -&gt;
 -&gt; Pipe[throttleTime(Event()) -&gt; map(number) -&gt; scan(number)] -&gt; subscribe(number).</p>
 
 <p>Note: <code>scan</code> first parameter is always aggregated value and the second one is emitted value.</p>
 
-<p>Conclusion: rxjs is (almost as any other library) just helps to solve same problems in different way.
-It introduces an abstraction for managing flows of events(first example) and the concept of Observable,
-Observer, Subscription operators and creates . It helps to solve event based tasks rather in a declarative
-than imperative way.
-Code becomes more redable and programmer mainly thinks about what operators to apply instead of implementing
-algorythms(2nd and 3rd examples).</p>
+<p>Conclusion: rxjs is (almost as any other library) just helps to solve same problems in different way.</p>
+
+<ul>
+<li>introduces an abstraction for managing flows of events(first example) and the concept of Observable,
+Observer, Subscription operators and creates.</li>
+<li>helps to solve event based tasks rather in a declarative
+than imperative way.</li>
+<li>code becomes more readable and programmer mainly thinks about which operators to apply instead of implementing
+algorithms(2nd and 3rd examples).</li>
+</ul>
 
                 </section>
             </article>
@@ -276,6 +283,13 @@ algorythms(2nd and 3rd examples).</p>
         
         <li>
             <a href="http://odushyn.github.io/post/rxjs-main-concept/">The main idea behind rxjs<aside class="dates">Jul 10</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="http://odushyn.github.io/post/rxjs-main-operators/"><aside class="dates">Jan 1</aside></a>
         </li>
         
    
