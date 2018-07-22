@@ -6,8 +6,208 @@
     <description>Recent content on Some blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Tue, 10 Jul 2018 23:31:01 +0200</lastBuildDate>
+    <lastBuildDate>Sun, 22 Jul 2018 00:00:00 +0000</lastBuildDate>
     <atom:link href="http://odushyn.github.io/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Most often used rxjs operators</title>
+      <link>http://odushyn.github.io/post/rxjs-most-often-used-operators/</link>
+      <pubDate>Sun, 22 Jul 2018 00:00:00 +0000</pubDate>
+      
+      <guid>http://odushyn.github.io/post/rxjs-most-often-used-operators/</guid>
+      <description>
+
+&lt;p&gt;In the previous &lt;a href=&#34;http://odushyn.github.io/post/rxjs-main-concept&#34;&gt;post&lt;/a&gt; I was explaining the main concept behind rxjs library.
+In this one I am going to cover the most often used operators from rxjs library.
+I will show basic examples of their usage inside angular application.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;../assets/rxjs-main-operators/app_operators.png&#34; alt=&#34;Operators&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Full source code is available on &lt;a href=&#34;https://github.com/ODushyn/angular-rxjs-operators-examples&#34;&gt;github&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h3 id=&#34;1-map-modifies-values-emitted-by-observable&#34;&gt;1. &lt;em&gt;map&lt;/em&gt; - modifies values emitted by observable&lt;/h3&gt;
+
+&lt;p&gt;Let&amp;rsquo;s assume we have http service that returns user information in json format.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;{
+  &amp;quot;name&amp;quot;: &amp;quot;John&amp;quot;,
+  &amp;quot;age&amp;quot;: 24,
+  &amp;quot;hobbies&amp;quot;: [],
+  ...
+  a lot of other properties
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;However, on client side we need to know only user&amp;rsquo;s &lt;code&gt;name&lt;/code&gt; to handle application business logic. Then,
+we can do following:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;this.httpClient.get(&#39;assets/user.json&#39;)
+  .pipe(
+    map((response: any) =&amp;gt; response.name),
+  )
+  .subscribe((name: string) =&amp;gt; {
+    this.userName = name;
+  });
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Map operator function gets emitted value as input and must return modified value as output.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;../assets/rxjs-main-operators/map_example.gif&#34; alt=&#34;Map example&#34; /&gt;&lt;/p&gt;
+
+&lt;h3 id=&#34;2-filter-filters-values-emitted-by-observable-against-specified-condition&#34;&gt;2. &lt;em&gt;filter&lt;/em&gt;  - filters values emitted by observable against specified condition&lt;/h3&gt;
+
+&lt;p&gt;There is an html input element where user should type the correct answer on the given question.
+We may create observable that emits the input value each time when user types the character.
+Because we should do nothing until user finishes typing correct string there is a good case
+to use &lt;code&gt;filter&lt;/code&gt; operator to handle this. Once user has typed correct answer we show success alert
+to him.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;this.questionForm.get(&#39;answer&#39;).valueChanges
+  .pipe(
+    filter((value: string) =&amp;gt; {
+      return value.toLowerCase() === &#39;kyiv&#39;;
+    })
+  )
+  .subscribe((value) =&amp;gt; {
+    setTimeout(() =&amp;gt; {
+      alert(&#39;Correct!&#39;);
+    });
+  });
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;img src=&#34;../assets/rxjs-main-operators/filter_example.gif&#34; alt=&#34;Filter example&#34; /&gt;&lt;/p&gt;
+
+&lt;h3 id=&#34;3-merge-combines-multiple-observables-into-one&#34;&gt;3. &lt;em&gt;merge&lt;/em&gt; - combines multiple observables into one&lt;/h3&gt;
+
+&lt;p&gt;This operator mainly used when we should apply same logic on values emitted by different observables.
+Assume that we have several html inputs on the screen and should count total number of changes
+user has made in all of them over the time.
+We may separately subscribe to each input valueChanges but it is more lean and readable to
+use &lt;code&gt;merge operator in this case&lt;/code&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;merge(
+  this.form.get(&#39;first&#39;).valueChanges,
+  this.form.get(&#39;second&#39;).valueChanges,
+  this.form.get(&#39;third&#39;).valueChanges
+)
+  .subscribe((value) =&amp;gt; {
+    this.numberOfChanges++;
+  });
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Note:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;if you don&amp;rsquo;t use operator inside &lt;code&gt;pipe&lt;/code&gt; function you must import it from rxjs folder.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code&gt; import { merge } from &#39;rxjs&#39;;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;ul&gt;
+&lt;li&gt;merge operator combines emitted values in the same order that they were emitted by the Observables
+(in contrast to &lt;code&gt;concat&lt;/code&gt; operator which combines only after first observable has completed).&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;img src=&#34;../assets/rxjs-main-operators/merge_example.gif&#34; alt=&#34;Merge example&#34; /&gt;&lt;/p&gt;
+
+&lt;h3 id=&#34;4-debounce-time-debouncing-based-on-time-between-input&#34;&gt;4. &lt;em&gt;debounce-time&lt;/em&gt; - debouncing based on time between input&lt;/h3&gt;
+
+&lt;p&gt;What if there is an html input and client should send http request right after user
+has typed searched text inside it. We may solve this task by sending request, for example,
+1 second after user stopped typing. And it is where &lt;code&gt;debounceTime&lt;/code&gt; operator comes into play.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt; this.searchForm.get(&#39;search&#39;).valueChanges
+   .pipe(
+     debounceTime(1000)
+   )
+   .subscribe((value) =&amp;gt; {
+     this.requestValue = value;
+   });
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;img src=&#34;../assets/rxjs-main-operators/debounceTime_example.gif&#34; alt=&#34;debounceTime example&#34; /&gt;&lt;/p&gt;
+
+&lt;h3 id=&#34;5-combinelatest-when-any-observable-emits-a-value-emit-the-latest-value-from-each&#34;&gt;5. &lt;em&gt;combineLatest&lt;/em&gt; - when any observable emits a value, emit the latest value from each&lt;/h3&gt;
+
+&lt;p&gt;What if it is needed to combine responses from several services before displaying data on the page.
+We need to wait until all made http requests finish in order to accomplish this.
+&lt;em&gt;combineLatest&lt;/em&gt; helps to solve the issue.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;combineLatest(
+  this.requestName(),
+  this.requestHobbies()
+)
+  .subscribe(values =&amp;gt; {
+    this.result = `${values[0]} hobbies are ${values[1]}`;
+  });
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;img src=&#34;../assets/rxjs-main-operators/combineLatest_example.gif&#34; alt=&#34;combineLatest example&#34; /&gt;&lt;/p&gt;
+
+&lt;h3 id=&#34;6-mergemap&#34;&gt;6. &lt;em&gt;mergeMap&lt;/em&gt;&lt;/h3&gt;
+
+&lt;p&gt;There is a great &lt;a href=&#34;https://netbasal.com/understanding-mergemap-and-switchmap-in-rxjs-13cf9c57c885&#34;&gt;article&lt;/a&gt;
+that explains those operators.&lt;/p&gt;
+
+&lt;p&gt;Let us assume we have a button and create Observable for emitting its click events:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;const click$ = fromEvent(this.startInterval.nativeElement, &#39;click&#39;);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;After button is clicked we want to return new observable. We may do this way:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;click$
+  .pipe(
+    map((clickEvent) =&amp;gt; {
+      return interval(1000);
+    })
+  )
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;In order to consume emitted values from &lt;code&gt;interval(1000)&lt;/code&gt; observable we need to subscribe to it.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt; click$
+  .pipe(
+    map((clickEvent) =&amp;gt; {
+      return interval(1000).subscribe((item) =&amp;gt; {
+        console.log(item);
+      });
+    })
+  )
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This code looks bad because of nested subscribes. We will also have a problem with unsubscribing
+ from inner observables.&lt;/p&gt;
+
+&lt;p&gt;In order to simplify the syntax &lt;code&gt;mergeMap&lt;/code&gt; operator was created.
+ What it does: once inner observable &lt;code&gt;interval(1000)&lt;/code&gt; emits, merge its values into outer observable click$.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt; click$
+   .pipe(
+     mergeMap((clickEvent) =&amp;gt; {
+       return interval(1000);
+     })
+   )
+   .subscribe((item) =&amp;gt; {
+     console.log(item);
+   });
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;One important point here: if you click button several times you will get several inner subscriptions.
+ Thus each new click returns &lt;em&gt;new&lt;/em&gt; observable.&lt;/p&gt;
+
+&lt;p&gt;If it is not what you need look at the next operator #6.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;../assets/rxjs-main-operators/mergeMap_example.gif&#34; alt=&#34;mergeMap example&#34; /&gt;&lt;/p&gt;
+
+&lt;h3 id=&#34;7-switchmap&#34;&gt;7. &lt;em&gt;switchMap&lt;/em&gt;&lt;/h3&gt;
+
+&lt;p&gt;Works same way as &lt;code&gt;mergeMap&lt;/code&gt; but cancels the inner subscription once outer observable emits.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;../assets/rxjs-main-operators/switchMap_example.gif&#34; alt=&#34;switchMap example&#34; /&gt;&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>The main idea behind rxjs</title>
@@ -20,7 +220,7 @@
 &lt;h3 id=&#34;what-is-rxjs&#34;&gt;What is rxjs?&lt;/h3&gt;
 
 &lt;p&gt;ReactiveX is a library for composing asynchronous and event-based programs by using observable sequences.
-rxjs is implimentation  Observer pattern in javascript programming language (&lt;a href=&#34;http://reactivex.io/intro.html&#34;&gt;source&lt;/a&gt;).&lt;/p&gt;
+rxjs is implementation of  Observer pattern in javascript programming language (&lt;a href=&#34;http://reactivex.io/intro.html&#34;&gt;source&lt;/a&gt;).&lt;/p&gt;
 
 &lt;p&gt;Not clear yet&amp;hellip;&lt;/p&gt;
 
@@ -256,15 +456,6 @@ We will notify you of any modifications to our Privacy Policy by posting the mes
 
 &lt;p&gt;Email me:  &lt;a href=&#34;mailto:wo.dushyn@gmail.com&#34;&gt;wo.dushyn@gmail.com&lt;/a&gt; or find me by clicking on any link bellow.&lt;/p&gt;
 </description>
-    </item>
-    
-    <item>
-      <title></title>
-      <link>http://odushyn.github.io/post/rxjs-main-operators/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>http://odushyn.github.io/post/rxjs-main-operators/</guid>
-      <description></description>
     </item>
     
     <item>

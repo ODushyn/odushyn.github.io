@@ -3,7 +3,12 @@
   
   <url>
     <loc>http://odushyn.github.io/</loc>
-    <lastmod>2018-07-10T23:31:01+02:00</lastmod>
+    <lastmod>2018-07-22T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://odushyn.github.io/post/rxjs-most-often-used-operators/</loc>
+    <lastmod>2018-07-22T00:00:00+00:00</lastmod>
   </url>
   
   <url>
@@ -24,10 +29,6 @@
   <url>
     <loc>http://odushyn.github.io/about/</loc>
     <lastmod>2015-06-20T14:02:37+02:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>http://odushyn.github.io/post/rxjs-main-operators/</loc>
   </url>
   
   <url>
