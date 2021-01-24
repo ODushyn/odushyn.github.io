@@ -1,0 +1,335 @@
+    <!DOCTYPE html>
+<html lang="en-us" >
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+  <meta name="author" content="Oleksandr Dushyn">
+  
+  
+  <meta name="description" content="Blogging site">
+  
+  <meta name="generator" content="Hugo 0.80.0" />
+  <title>My favourite tips from &#39;The Pragmatic Programmers&#39; book &middot; Some blog</title>
+  <link rel="shortcut icon" href="http://odushyn.github.io/images/favicon.ico">
+  <link rel="stylesheet" href="http://odushyn.github.io/css/style.css">
+  <link rel="stylesheet" href="http://odushyn.github.io/css/highlight.css">
+  <link rel="stylesheet" href="http://odushyn.github.io//css/open_sans_font.css">
+  
+
+  
+  <link rel="stylesheet" href="http://odushyn.github.io/fontawesome/css/font-awesome.min.css">
+  
+
+  
+</head>
+
+    <body>
+       <nav class="main-nav">
+	
+	
+		<a href='http://odushyn.github.io/'> <span class="arrow">←</span>Home</a>
+	
+
+	
+		<a href='http://odushyn.github.io/about'>About</a>
+	
+
+	
+	<a href='http://odushyn.github.io/projects'>Projects</a>
+	
+
+	
+</nav>
+
+        <section id="wrapper">
+            <article class="post">
+                <header>
+                    <h1>My favourite tips from &#39;The Pragmatic Programmers&#39; book</h1>
+                    <h2 class="headline">
+                    January 25, 2020 
+                    <br>
+                    
+                    </h2>
+                </header>
+                <section id="post-body">
+                    <p>20 years ago were published a currently well known
+book <a href="https://www.amazon.com/Pragmatic-Programmer-Journeyman-Master/dp/020161622X">&ldquo;The pragmatic Programmer&rdquo;</a>. This is
+one of not many books which is still relevant after 20 years, and some recommendations from there would probably never
+become outdated.</p>
+<p>20 years later since first publication world can enjoy the second edition of the book. Outdated information and code
+examples are updated to nowadays reality. The core ideas of the book stayed tha same, though.</p>
+<p>The book is build as 100 tips for becoming a better(pragmatic) programmer with explanations and examples. I want to
+share my favorite ones.</p>
+<ul>
+<li>
+<p>Care about your craft</p>
+<p>Basically, there is no point to develop software unless you care about doing it well.</p>
+</li>
+<li>
+<p>Don&rsquo;t leave with broken windows</p>
+<p>This one is probably my favourite. Don&rsquo;t leave &ldquo;broken windows&rdquo;(bad designs, wrong decisions, or poor code)
+unrepaired. The &ldquo;Broken Window Theory&rdquo;: an abounded car stayed for a week untouched. But once a single window was
+broken, the got stripped and turned<br>
+upside down within hours.</p>
+</li>
+<li>
+<p>Remember the big picture.</p>
+<p>Only by keeping in mind big picture of the project we can come up with comprehensive improvements. You should
+constantly review what&rsquo;s happening around, not just what you are personally doing.</p>
+</li>
+<li>
+<p>Invest regularly in your knowledge portfolio</p>
+<p>An investment in knowledge always pays the best interest (Benjamin Franklin).</p>
+</li>
+<li>
+<p>English is just another programming language</p>
+<p>You are communicating only if you are conveying what you mean to convey - just talking isn&rsquo;t enough.
+Be a listener: if you want people listen to you - listen to them.
+Get back to people: always respond to emails and voicemails.</p>
+</li>
+<li>
+<p>Good design is easier to change than bad design</p>
+<p>ETC principle: Easier to Change. It is almost never possible to build the right design and architecture from first attempt.
+Requirements may change or new better ideas may come up on the way. The way to keep agile is writing code is easy to change.
+Easy to change code means you don&rsquo;t need to refactor whole system to change its small logical part.
+Most people assume that maintenance begins when an application is released, that maintenance means fixing bugs and enhancing features.
+Authors of the book believes that those people are wrong. Maintenance is a continuous process starting from the first dat of development.</p>
+</li>
+<li>
+<p>Iterate the schedule with the code</p>
+<p>It is never easy to make an estimate, especially the accurate one.</p>
+<p>What to say when asked for an estimate? - I&rsquo;ll get back to you.</p>
+<p>Take some time, probably divide estimation into 3: optimistic. realistic, pessimistic. Reevaluate your estimation together with project iterations.</p>
+</li>
+<li>
+<p>Always use version control</p>
+<p>Yes, even for home and &ldquo;throw away&rdquo; projects.</p>
+</li>
+<li>
+<p>Fix the problem, not the blame.</p>
+<p>It does not really matter the bug is your fault or someone else&rsquo;s. It is still your problem.</p>
+</li>
+<li>
+<p>&ldquo;select&rdquo; is not broken</p>
+<p>&ldquo;select&rdquo; here mean SQL <em>select</em> statement. The example was that developer believed that his code is working right but what working wrong was
+select sql statement. Of course, it was opposite. It just took some time to find the real issue.
+Take some break or ask somebody else for a review - &ldquo;select&rdquo; is not broken.</p>
+</li>
+<li>
+<p>Tell, don&rsquo;t ask / Don&rsquo;t chain method calls</p>
+<pre><code>amount = customer.orders.last().totals().amount;
+</code></pre><p>Doing this way may spread the knowledge about customer&rsquo;s orders throughout the system and create extra coupling.
+Better to encapsulate:</p>
+<pre><code>customer.lastOrder().totalAmount
+</code></pre></li>
+<li>
+<p>Programming is about code, but programs about data</p>
+<p>What is the most of the programs is doing in the end is transforming data from some initial state to desired target state.
+Keeping in mind a high picture of data transformations helps to understand and improve the overall program.</p>
+</li>
+<li>
+<p>Don&rsquo;t pay inheritance tax</p>
+<p>Avoid using inheritance. Prefer composition or mixins instead.</p>
+</li>
+<li>
+<p>Shared state is incorrect state</p>
+<p>Try to avoid shared states, otherwise it becomes a hell once you want to apply parallelism.</p>
+</li>
+<li>
+<p>Don&rsquo;t program by coincidence</p>
+<p>If you&rsquo;ve made some code to work and don&rsquo;t understand why it does - investigate and only after you do understand - move forward.</p>
+</li>
+<li>
+<p>Testing is not about finding bugs</p>
+<p>Testing is about preventing bugs, improving code and your understanding about the program.</p>
+</li>
+<li>
+<p>Build End-to-End, not Top-Down or Bottom Up</p>
+<p>Build software incrementally by building small pieces of end-to-end functionality.</p>
+</li>
+<li>
+<p>Test you software, or your users will</p>
+<p>Testing, design, coding - it is all programming.</p>
+</li>
+<li>
+<p>Name well; Rename when needed.</p>
+<p>Name functions by <code>why it does it</code> and not <code>what it does</code>.
+Prefer <code>applyDiscount(Percentage amount)</code> instead of <code>deductPercent(amount)</code>.</p>
+</li>
+<li>
+<p>Programmers help people understand what they want</p>
+<p>Yep, programmers are not just writing code on their own.</p>
+</li>
+<li>
+<p>Agile is not a noun; Agile is how you do things</p>
+<pre><code>1. workout where you are
+2. make the smallest meaningful step towards where you want to be
+3. evaluate where you end up and fix everything you broke
+4. repeat until you are done
+</code></pre>
+</li>
+<li>
+<p>Find bugs once</p>
+<p>The same bug must not be seen twice. Once bug is caught - cover it with a test.</p>
+</li>
+</ul>
+<p>The last tip in the book was: &ldquo;It is your life. Share it. Celebrate it. Build it, AND HAVE FUN!&rdquo;</p>
+<p>I really enjoyed reading the book and reflecting on the go. Highly recommend reading this book to all programmers with any level if you haven&rsquo;t done that yet.</p>
+
+                </section>
+            </article>
+            <footer id="post-meta" class="clearfix">
+                <a href="https://twitter.com/ODushyn">
+                        <img class="avatar" src="http://odushyn.github.io/images/im.png">
+                        <div>
+                            <span class="dark">Oleksandr Dushyn</span>
+                            <span>The one who tries to understand</span>
+                        </div>
+                    </a>
+                <section id="sharing">
+                    <a class="twitter" href="https://twitter.com/intent/tweet?text=http%3a%2f%2fodushyn.github.io%2fpost%2fpragmatic-programmer-2020%2f - My%20favourite%20tips%20from%20%27The%20Pragmatic%20Programmers%27%20book by @ODushyn"><span class="icon-twitter"> Tweet</span></a>
+
+<a class="facebook" href="#" onclick="
+    window.open(
+      'https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(location.href),
+      'facebook-share-dialog',
+      'width=626,height=436');
+    return false;"><span class="icon-facebook-rect"> Share</span>
+</a>
+
+                </section>
+            </footer>
+
+            <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "odushyn" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+            <ul id="post-list" class="archive readmore">
+    <h3>Read more</h3>
+    
+    
+        
+        <li>
+            <a href="http://odushyn.github.io/post/pragmatic-programmer-2020/">My favourite tips from &#39;The Pragmatic Programmers&#39; book<aside class="dates">Jan 25</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="http://odushyn.github.io/post/">Posts<aside class="dates">Jan 25</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="http://odushyn.github.io/">Some blog<aside class="dates">Jan 25</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="http://odushyn.github.io/post/rxjs-most-often-used-operators/">Most often used rxjs operators<aside class="dates">Jul 22</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="http://odushyn.github.io/post/rxjs-main-concept/">The main idea behind rxjs<aside class="dates">Jul 10</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="http://odushyn.github.io/post/state-pattern-js/">State Pattern. JavaScript implementation.<aside class="dates">Nov 5</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="http://odushyn.github.io/post/http-return-errors-to-clients/">HTTP. How to return errors to clients?<aside class="dates">May 18</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="http://odushyn.github.io/categories/">Categories<aside class="dates">Jan 1</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="http://odushyn.github.io/tags/">Tags<aside class="dates">Jan 1</aside></a>
+        </li>
+        
+   
+</ul>
+            <footer id="footer">
+    
+        <div id="social">
+
+	
+	
+    <a class="symbol" href="https://www.facebook.com/oleks.dushyn">
+        <i class="fa fa-facebook"></i>
+    </a>
+    
+    <a class="symbol" href="https://github.com/ODushyn">
+        <i class="fa fa-github"></i>
+    </a>
+    
+    <a class="symbol" href="https://twitter.com/ODushyn">
+        <i class="fa fa-twitter"></i>
+    </a>
+    
+
+
+</div>
+
+    
+    <p class="small">
+    
+        © Copyright 2021 Oleksandr Dushyn
+    
+    </p>
+</footer>
+
+        </section>
+
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+<script src="http://odushyn.github.io/js/main.js"></script>
+<script src="http://odushyn.github.io/js/highlight.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+
+
+
+
+
+    </body>
+</html>

@@ -10,7 +10,7 @@
   
   <meta name="description" content="Blogging site">
   
-  <meta name="generator" content="Hugo 0.16" />
+  <meta name="generator" content="Hugo 0.80.0" />
   <title>State Pattern. JavaScript implementation. &middot; Some blog</title>
   <link rel="shortcut icon" href="http://odushyn.github.io/images/favicon.ico">
   <link rel="stylesheet" href="http://odushyn.github.io/css/style.css">
@@ -54,142 +54,114 @@
                     </h2>
                 </header>
                 <section id="post-body">
-                    
-
-<h3 id="introduction">Introduction:</h3>
-
+                    <h3 id="introduction">Introduction:</h3>
 <p><a href="https://en.wikipedia.org/wiki/State_pattern">According to wikipedia</a> it is a behavioral software design pattern that
 implements a <em>state machine</em> in an object-oriented way.</p>
-
 <p>What&rsquo;s <em>state machine</em>?
 Finite State Machine(FSM) is some abstract machine that can be in exactly one state at particular moment of time and
 has rules for changing the states(making transition).</p>
-
 <p>Basically, FSM can be defined by 3 things:</p>
-
 <ol>
 <li>list of states</li>
 <li>rules for chaning the states</li>
 <li>initial state</li>
 </ol>
-
 <h3 id="examples">Examples</h3>
-
 <p>We interact with state machines every day.</p>
-
 <ul>
 <li>traffic lights</li>
 <li>elevators</li>
 <li>ticket machines</li>
 <li>minibanks</li>
 </ul>
-
 <h3 id="defining-traffic-light-as-state-machine">Defining traffic light as state machine</h3>
-
 <ol>
-<li>List of states: green/yellow/red</li>
-
-<li><p>Rules:</p>
-
+<li>
+<p>List of states: green/yellow/red</p>
+</li>
+<li>
+<p>Rules:</p>
 <p>-if light is green move to yellow condition.</p>
-
 <p>-if light is yellow move to red condition.</p>
-
-<p>-if light is red move to green condition</p></li>
-
-<li><p>Initial state: green.</p></li>
+<p>-if light is red move to green condition</p>
+</li>
+<li>
+<p>Initial state: green.</p>
+</li>
 </ol>
-
 <h3 id="implementation-without-state-pattern">Implementation without state pattern</h3>
-
 <p>Before using state pattern itself let&rsquo;s try to implement traffic light logic straightforward. We are going to create
 object <em>State</em> that will represents traffic lights(green, yellow or red) and use if/else statements to handle lights
 changing.</p>
-
-<pre><code class="language-js">function LightMachine(light) {
-  // current state  
-  this.light = light;
-  printInfo(this.light);
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#66d9ef">function</span> <span style="color:#a6e22e">LightMachine</span>(<span style="color:#a6e22e">light</span>) {
+  <span style="color:#75715e">// current state  
+</span><span style="color:#75715e"></span>  <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">light</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">light</span>;
+  <span style="color:#a6e22e">printInfo</span>(<span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">light</span>);
   
-  this.changeLight = function() {
-    // transition rules  
-    if (this.light === &quot;GREEN&quot;) {
-      this.light = &quot;YELLOW&quot;;
-    } else if (this.light === &quot;YELLOW&quot;) {
-      this.light = &quot;RED&quot;;
-    } else if (this.light === &quot;RED&quot;) {
-      this.light = &quot;GREEN&quot;;
+  <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">changeLight</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">function</span>() {
+    <span style="color:#75715e">// transition rules  
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">if</span> (<span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">light</span> <span style="color:#f92672">===</span> <span style="color:#e6db74">&#34;GREEN&#34;</span>) {
+      <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">light</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;YELLOW&#34;</span>;
+    } <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">if</span> (<span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">light</span> <span style="color:#f92672">===</span> <span style="color:#e6db74">&#34;YELLOW&#34;</span>) {
+      <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">light</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;RED&#34;</span>;
+    } <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">if</span> (<span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">light</span> <span style="color:#f92672">===</span> <span style="color:#e6db74">&#34;RED&#34;</span>) {
+      <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">light</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;GREEN&#34;</span>;
     }
-    printInfo(this.light);
+    <span style="color:#a6e22e">printInfo</span>(<span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">light</span>);
   };
   
-  function printInfo(light){
-    console.log('Current light: ' + light);
+  <span style="color:#66d9ef">function</span> <span style="color:#a6e22e">printInfo</span>(<span style="color:#a6e22e">light</span>){
+    <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#e6db74">&#39;Current light: &#39;</span> <span style="color:#f92672">+</span> <span style="color:#a6e22e">light</span>);
   }
 }
 
-// create initial state 'GREEN'
-var lightMachine = new LightMachine('GREEN');
-lightMachine.changeLight(); // YELLOW
-lightMachine.changeLight(); // RED
-lightMachine.changeLight(); // GREEN
-lightMachine.changeLight(); // YELLOW
-lightMachine.changeLight(); // RED
-</code></pre>
-
-<p>Everything looks great except the branched out and coupled code in the rules part. Considering more complex example, you will get
+<span style="color:#75715e">// create initial state &#39;GREEN&#39;
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">var</span> <span style="color:#a6e22e">lightMachine</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">LightMachine</span>(<span style="color:#e6db74">&#39;GREEN&#39;</span>);
+<span style="color:#a6e22e">lightMachine</span>.<span style="color:#a6e22e">changeLight</span>(); <span style="color:#75715e">// YELLOW
+</span><span style="color:#75715e"></span><span style="color:#a6e22e">lightMachine</span>.<span style="color:#a6e22e">changeLight</span>(); <span style="color:#75715e">// RED
+</span><span style="color:#75715e"></span><span style="color:#a6e22e">lightMachine</span>.<span style="color:#a6e22e">changeLight</span>(); <span style="color:#75715e">// GREEN
+</span><span style="color:#75715e"></span><span style="color:#a6e22e">lightMachine</span>.<span style="color:#a6e22e">changeLight</span>(); <span style="color:#75715e">// YELLOW
+</span><span style="color:#75715e"></span><span style="color:#a6e22e">lightMachine</span>.<span style="color:#a6e22e">changeLight</span>(); <span style="color:#75715e">// RED
+</span></code></pre></div><p>Everything looks great except the branched out and coupled code in the rules part. Considering more complex example, you will get
 more different and complicated if/else statements which makes code even less readable and maintainable.</p>
-
 <h3 id="implementation-with-state-pattern">Implementation with state pattern</h3>
-
 <p>So, let&rsquo;s try to decouple this code.</p>
-
 <p>The reason of such branching code is that we try to handle all transition logic in one place. Let&rsquo;s make it different way,
 so each state keeping its transition rules logic by itself.</p>
-
-<pre><code class="language-js">let Green = function() {
-  this.name = &quot;Green&quot;;
-  this.transition = function(trafficLight) {
-    trafficLight.setLight(new Yellow());
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#66d9ef">let</span> <span style="color:#a6e22e">Green</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">function</span>() {
+  <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">name</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;Green&#34;</span>;
+  <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">transition</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">function</span>(<span style="color:#a6e22e">trafficLight</span>) {
+    <span style="color:#a6e22e">trafficLight</span>.<span style="color:#a6e22e">setLight</span>(<span style="color:#66d9ef">new</span> <span style="color:#a6e22e">Yellow</span>());
   }
 };
-</code></pre>
-
-<p>We have created an object that encapsulates(holds) all particular state internal data(i.e. state name)
+</code></pre></div><p>We have created an object that encapsulates(holds) all particular state internal data(i.e. state name)
 and implements common for all states function <em>transition</em> that contains rules.
 The same should be done for each state. Basically, state object by itself only answers the question:</p>
-
-<p><em>&ldquo;What must be the next state according to the defined rules?&rdquo;</em>.</p>
-
-<pre><code class="language-js">let Yellow = function() {
-  this.name = &quot;Yellow&quot;;
-  this.transition = function(trafficLight) {
-    // according to the rules next state should be Red
-    trafficLight.setLight(new Red());
+<p><em>&ldquo;What must be the next state according to the defined rules?&quot;</em>.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#66d9ef">let</span> <span style="color:#a6e22e">Yellow</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">function</span>() {
+  <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">name</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;Yellow&#34;</span>;
+  <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">transition</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">function</span>(<span style="color:#a6e22e">trafficLight</span>) {
+    <span style="color:#75715e">// according to the rules next state should be Red
+</span><span style="color:#75715e"></span>    <span style="color:#a6e22e">trafficLight</span>.<span style="color:#a6e22e">setLight</span>(<span style="color:#66d9ef">new</span> <span style="color:#a6e22e">Red</span>());
   }
 };
 
-let Red = function(trafficLight) {
-  this.name = &quot;Red&quot;;
-  // according to the rules next state should be Green
-  this.transition = function(trafficLight) {
-    trafficLight.setLight(new Green());
+<span style="color:#66d9ef">let</span> <span style="color:#a6e22e">Red</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">function</span>(<span style="color:#a6e22e">trafficLight</span>) {
+  <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">name</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;Red&#34;</span>;
+  <span style="color:#75715e">// according to the rules next state should be Green
+</span><span style="color:#75715e"></span>  <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">transition</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">function</span>(<span style="color:#a6e22e">trafficLight</span>) {
+    <span style="color:#a6e22e">trafficLight</span>.<span style="color:#a6e22e">setLight</span>(<span style="color:#66d9ef">new</span> <span style="color:#a6e22e">Green</span>());
   }
 };
-</code></pre>
-
-<p>We are done with states, but we need to be able to start, stop the system, put system in the specified state,
+</code></pre></div><p>We are done with states, but we need to be able to start, stop the system, put system in the specified state,
 keep the particular state, implement any logic between the transitions.
 We also would like to know answers on following questions:</p>
-
 <ul>
 <li>What is the current state of the system?</li>
 <li>What are the statistics (how many times states are changed, what state is the most &ldquo;popular&rdquo;, etc)?</li>
 </ul>
-
 <p>Let&rsquo;s create a function for that exact reason. People usually  call it <em>context</em> object because it keeps information
 that&rsquo;s common and available for each state.</p>
-
 <pre><code>let TrafficLight = function(initialState) {
   this.currentState = initialState;
   
@@ -201,32 +173,22 @@ that&rsquo;s common and available for each state.</p>
     this.currentState.transition(this);
   }
 };
-</code></pre>
-
-<p>As we see it contains two methods. <em>setLight</em> sets the current traffic light and <em>changeLight</em> is responsible
+</code></pre><p>As we see it contains two methods. <em>setLight</em> sets the current traffic light and <em>changeLight</em> is responsible
 for transition according to the current state&rsquo;s rules. The rules are encapsulated in each state object.
 Therefore, we do not have if/else hell and spaghetti code anymore</p>
-
 <p><em>There is only one interface(TrafficLight) which contains current state and delegates implementation of transitions to state objects.</em></p>
-
 <p>Code looks much more readable and cleaner than in the first approach. This approach is called &ldquo;State pattern&rdquo;.
 We are ready to use our traffic light implemented via <em>State Pattern</em> now!</p>
-
 <pre><code>var stateContext = new TrafficLight(new Green());
 stateContext.changeLight();
 stateContext.changeLight();
 stateContext.changeLight();
 stateContext.changeLight();
 stateContext.changeLight();
-</code></pre>
-
-<p>Check out <a href="http://plnkr.co/edit/iJo6CfGjX0EuiZ9BIj4l">plunker</a> to see full version.</p>
-
+</code></pre><p>Check out <a href="http://plnkr.co/edit/iJo6CfGjX0EuiZ9BIj4l">plunker</a> to see full version.</p>
 <h3 id="smart-traffic-light">Smart traffic light</h3>
-
 <p>I&rsquo;ve added timing for switching between the lights to make our traffic light more real.
 Check out <a href="http://plnkr.co/edit/V5bUWp">this plunk</a></p>
-
 <p>Hope you enjoyed reading!</p>
 
                 </section>
@@ -254,24 +216,50 @@ Check out <a href="http://plnkr.co/edit/V5bUWp">this plunk</a></p>
             </footer>
 
             <div id="disqus_thread"></div>
-<script type="text/javascript">
-    var disqus_shortname = 'odushyn';
-    var disqus_identifier = 'http:\/\/odushyn.github.io\/post\/state-pattern-js\/';
-    var disqus_title = 'State Pattern. JavaScript implementation.';
-    var disqus_url = 'http:\/\/odushyn.github.io\/post\/state-pattern-js\/';
-
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
     (function() {
-        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
-        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
-        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "odushyn" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
     })();
 </script>
-<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-<a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
 
             <ul id="post-list" class="archive readmore">
     <h3>Read more</h3>
     
+    
+        
+        <li>
+            <a href="http://odushyn.github.io/post/pragmatic-programmer-2020/">My favourite tips from &#39;The Pragmatic Programmers&#39; book<aside class="dates">Jan 25</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="http://odushyn.github.io/post/">Posts<aside class="dates">Jan 25</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="http://odushyn.github.io/">Some blog<aside class="dates">Jan 25</aside></a>
+        </li>
+        
+   
     
         
         <li>
@@ -297,6 +285,20 @@ Check out <a href="http://plnkr.co/edit/V5bUWp">this plunk</a></p>
         
         <li>
             <a href="http://odushyn.github.io/post/http-return-errors-to-clients/">HTTP. How to return errors to clients?<aside class="dates">May 18</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="http://odushyn.github.io/categories/">Categories<aside class="dates">Jan 1</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="http://odushyn.github.io/tags/">Tags<aside class="dates">Jan 1</aside></a>
         </li>
         
    
@@ -326,7 +328,7 @@ Check out <a href="http://plnkr.co/edit/V5bUWp">this plunk</a></p>
     
     <p class="small">
     
-        © Copyright 2018 Oleksandr Dushyn
+        © Copyright 2021 Oleksandr Dushyn
     
     </p>
 </footer>

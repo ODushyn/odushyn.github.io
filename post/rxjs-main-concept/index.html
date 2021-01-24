@@ -10,7 +10,7 @@
   
   <meta name="description" content="Blogging site">
   
-  <meta name="generator" content="Hugo 0.16" />
+  <meta name="generator" content="Hugo 0.80.0" />
   <title>The main idea behind rxjs &middot; Some blog</title>
   <link rel="shortcut icon" href="http://odushyn.github.io/images/favicon.ico">
   <link rel="stylesheet" href="http://odushyn.github.io/css/style.css">
@@ -54,94 +54,61 @@
                     </h2>
                 </header>
                 <section id="post-body">
-                    
-
-<h3 id="what-is-rxjs">What is rxjs?</h3>
-
+                    <h3 id="what-is-rxjs">What is rxjs?</h3>
 <p>ReactiveX is a library for composing asynchronous and event-based programs by using observable sequences.
 rxjs is implementation of  Observer pattern in javascript programming language (<a href="http://reactivex.io/intro.html">source</a>).</p>
-
 <p>Not clear yet&hellip;</p>
-
 <p>All my following examples are taken from <a href="https://rxjs-dev.firebaseapp.com/guide/overview">official guide</a>.</p>
-
 <h4 id="first-example-create-observable">First example: create observable</h4>
-
 <ul>
 <li>Count how many times the button was clicked.</li>
 </ul>
-
 <p>Straightforward solution via using event listener and implementing callback function.</p>
-
 <pre><code>var count = 0;
 var button = document.querySelector('button');
 button.addEventListener('click', () =&gt; console.log(`Clicked ${++count} times`));
-</code></pre>
-
-<p>There is big disadvantage: callback function modifies external state - <code>count</code> variable.
+</code></pre><p>There is big disadvantage: callback function modifies external state - <code>count</code> variable.
 In big projects such behaviour may lead to unexpected errors.</p>
-
 <p>In example above we handle each event separately. However, what if we could handle the flow of these events?
 This idea is implemented inside Observable object. Observable object emits events and gives possibility to
 manipulate them in sequential way.</p>
-
 <p>There are many ways to create an Observable out of html events flow. Let&rsquo;s use <code>fromEvent</code> function.</p>
-
 <pre><code>let observable = fromEvent(button, 'click');
-</code></pre>
-
-<p>Once we have an Observable that emit events we also need the way to consume those events.
+</code></pre><p>Once we have an Observable that emit events we also need the way to consume those events.
 Here is where Observer comes to play. We observe emitted values using <code>subscribe</code> method.
 Subscribe method consumes 3 callbacks: for success consumes event, error consumes error
 and onComplete callback consumes nothing.</p>
-
 <pre><code>let observable = fromEvent(button, 'click');
 let subscription = observable.subscribe((event) =&gt; {}, (error) =&gt; {}, () =&gt; {})
-</code></pre>
-
-<p>Method subscribe returns <code>Subscription</code> object the mainly used for canceling subscription
+</code></pre><p>Method subscribe returns <code>Subscription</code> object the mainly used for canceling subscription
 by calling <code>subscription.unsubscribe()</code></p>
-
 <p>Based <em>ONLY</em> on this knowledge we may implement next solution(<em>ugly, DO NOT repeat this</em>)</p>
-
 <pre><code>let count = 0;
 const button = document.querySelector('button');
 fromEvent(button, 'click').subscribe(count =&gt; {
     console.log(`RXJS: Clicked ${count++} times`)
 });
-</code></pre>
-
-<p>Where the benefit of using Observable you may ask? After all, we still have global count variable.</p>
-
+</code></pre><p>Where the benefit of using Observable you may ask? After all, we still have global count variable.</p>
 <p>What if we could manipulate the flow itself and change each events or values emitted by Observable before getting it
 into subscribe function as parameter?
 There is where a very power concept of Operators comes to play at this exact moment.
 To solve our problem we may use <code>scan</code> operator.</p>
-
 <pre><code>const button = document.querySelector('button');
 fromEvent(button, 'click').pipe(
   scan(count =&gt; count + 1, 0)
 )
 .subscribe(count =&gt; console.log(`RXJS: Clicked ${count} times`));
-</code></pre>
-
-<p><code>scan</code> operator implements callback function and aggregates the result into count variable.</p>
-
+</code></pre><p><code>scan</code> operator implements callback function and aggregates the result into count variable.</p>
 <p>Since rxjs-v6 it&rsquo;s mandatory to use <code>pipe</code> method and pass operators inside it as its parameters.
 Thus, before you get emitted event inside <code>subscribe</code> function all events go through the <code>pipe</code> and
 gets modified by the specified operators.</p>
-
 <p>Last solution by using <code>observable</code> and <code>scan</code> operators provides clean solution without using global variables
 and you can easily scale it.</p>
-
 <h4 id="second-example-apply-operator">Second example: apply operator</h4>
-
 <ul>
 <li>The task is to allow and handle at most one click per second.</li>
 </ul>
-
 <p>Straightforward solution:</p>
-
 <pre><code>var count = 0;
 var rate = 1000;
 var lastClick = Date.now() - rate;
@@ -152,10 +119,7 @@ button.addEventListener('click', () =&gt; {
     lastClick = Date.now();
   }
 });
-</code></pre>
-
-<p>Using observables:</p>
-
+</code></pre><p>Using observables:</p>
 <pre><code>const { fromEvent } = rxjs;
 const { throttleTime, scan } = rxjs.operators;
 const button = document.querySelector('button');
@@ -164,21 +128,15 @@ fromEvent(button, 'click').pipe(
   scan(count =&gt; count + 1, 0)
 )
 .subscribe(count =&gt; console.log(`Clicked ${count} times`));
-</code></pre>
-
-<p>Just look at how is readable the solution that uses observables. That is because it allows to control the flow.
+</code></pre><p>Just look at how is readable the solution that uses observables. That is because it allows to control the flow.
 <code>throttleTime</code> operator emits latest value when specified duration has passed and <code>scan</code> operator counts the
 total number of events.
 Operators are executed in the order they specified inside pipe function. Scan operator is not executed until
 <code>throttleTime</code> emits the value. <code>subscribe</code> function is not executed until all operators are passed.</p>
-
-<p><img src="https://image.slidesharecdn.com/fpjsluisatenciobocajs-160504163409/95/luis-atencio-on-rxjs-22-638.jpg?cb=1462379809"></p>
-
+<!-- raw HTML omitted -->
 <h4 id="third-example-scale-existing-solution">Third example: scale existing solution</h4>
-
 <p>Lets make task more complicated and count the sum of current mouse x positions.
 Event listener:</p>
-
 <pre><code>let count = 0;
 const rate = 1000;
 let lastClick = Date.now() - rate;
@@ -190,10 +148,7 @@ button.addEventListener('click', (event) =&gt; {
     lastClick = Date.now();
   }
 });
-</code></pre>
-
-<p>Observable:</p>
-
+</code></pre><p>Observable:</p>
 <pre><code>const { fromEvent } = rxjs;
 const { throttleTime, map, scan } = rxjs.operators;
 
@@ -204,13 +159,9 @@ fromEvent(button, 'click').pipe(
   scan((count, clientX) =&gt; count + clientX, 0)
 )
 .subscribe(count =&gt; console.log(count));
-</code></pre>
-
-<p>Event listener solution required refactoring of the algorithm but Observable approach
+</code></pre><p>Event listener solution required refactoring of the algorithm but Observable approach
 adding of one more operator - <code>map</code>.</p>
-
 <p><code>map</code> transforms the items emitted by an Observable by applying a function to each item.</p>
-
 <ul>
 <li>Firstly, click happened by user and click event was emitted by browser.</li>
 <li>The flow of click events is handled by our Observable. Observable emits same event further.</li>
@@ -219,14 +170,10 @@ so emits click event further to <code>map</code> operator.</li>
 <li><code>map</code> is transform operator and in our case it transforms click event(object) to coordinate(number).
 Therefore, scan get number as input instead of event object.</li>
 </ul>
-
 <p>Browser click(emits Event() object) -&gt; Observable(Event()) -&gt;
 -&gt; Pipe[throttleTime(Event()) -&gt; map(number) -&gt; scan(number)] -&gt; subscribe(number).</p>
-
 <p>Note: <code>scan</code> first parameter is always aggregated value and the second one is emitted value.</p>
-
 <p>Conclusion: rxjs is (almost as any other library) just helps to solve same problems in different way.</p>
-
 <ul>
 <li>introduces an abstraction for managing flows of events(first example) and the concept of Observable,
 Observer, Subscription operators and creates.</li>
@@ -261,24 +208,50 @@ algorithms(2nd and 3rd examples).</li>
             </footer>
 
             <div id="disqus_thread"></div>
-<script type="text/javascript">
-    var disqus_shortname = 'odushyn';
-    var disqus_identifier = 'http:\/\/odushyn.github.io\/post\/rxjs-main-concept\/';
-    var disqus_title = 'The main idea behind rxjs';
-    var disqus_url = 'http:\/\/odushyn.github.io\/post\/rxjs-main-concept\/';
-
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
     (function() {
-        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
-        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
-        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "odushyn" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
     })();
 </script>
-<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-<a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
 
             <ul id="post-list" class="archive readmore">
     <h3>Read more</h3>
     
+    
+        
+        <li>
+            <a href="http://odushyn.github.io/post/pragmatic-programmer-2020/">My favourite tips from &#39;The Pragmatic Programmers&#39; book<aside class="dates">Jan 25</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="http://odushyn.github.io/post/">Posts<aside class="dates">Jan 25</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="http://odushyn.github.io/">Some blog<aside class="dates">Jan 25</aside></a>
+        </li>
+        
+   
     
         
         <li>
@@ -304,6 +277,20 @@ algorithms(2nd and 3rd examples).</li>
         
         <li>
             <a href="http://odushyn.github.io/post/http-return-errors-to-clients/">HTTP. How to return errors to clients?<aside class="dates">May 18</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="http://odushyn.github.io/categories/">Categories<aside class="dates">Jan 1</aside></a>
+        </li>
+        
+   
+    
+        
+        <li>
+            <a href="http://odushyn.github.io/tags/">Tags<aside class="dates">Jan 1</aside></a>
         </li>
         
    
@@ -333,7 +320,7 @@ algorithms(2nd and 3rd examples).</li>
     
     <p class="small">
     
-        © Copyright 2018 Oleksandr Dushyn
+        © Copyright 2021 Oleksandr Dushyn
     
     </p>
 </footer>
